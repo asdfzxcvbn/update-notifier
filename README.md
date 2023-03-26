@@ -31,3 +31,19 @@ files = {"youtube": "youtube.txt", "spotify": "spotify.txt"}
 in this example, both youtube and spotify are being monitored for updates. to monitor new apps, add a new entry into the `bundles` dictionary with the app's name. its value will be the bundle id of the app. once you have created the new dictionary key, make a new entry in `files` with the **SAME NAME** as the entry in `bundles`. these are **case-sensitive**, so make sure even the capitalization matches. the value of the entry in `files` should be a .txt file with the name of the app you are monitoring.
 
 you will have to create the file after you have defined it in `files`. make the file, open it in your favorite text editor, and add the current version of the app.
+
+#### how do i get the bundle id of an app?
+you can get an app's bundle id with [this website](https://offcornerdev.com/bundleid.html).
+
+## running the bot
+simply run `python3 updateNotifier.py` and leave it running. the best option is to run this on a server that is always on. you can let this run in the background with tools like `screen`.
+
+## was this useful?
+if it was, i would appreciate any donation. :)
+my monero address is `82m19F4yb15UQbJUrxxmzJ3fvKyjjqJM55gv8qCp2gSTgo3D8avzNJJQ6tREGVKA7VUUJE6hPKg8bKV6tTXKhDDx75p6vGj`
+
+you may also scan this QR code.
+
+![image](https://user-images.githubusercontent.com/109937991/227786784-28eaf0a1-9d17-4fc5-8c1c-f017fd62cfad.png)
+
+
