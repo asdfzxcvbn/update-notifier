@@ -19,6 +19,7 @@ req_headers = {
     "cache-control": "private, max-age=0, no-cache"
 }
 
+
 def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
