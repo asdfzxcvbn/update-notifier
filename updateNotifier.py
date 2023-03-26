@@ -4,7 +4,7 @@ from time import sleep
 
 BOT_TOKEN = ""  # <-- add your bot token here. you can make a bot by messaging @BotFather
 CHAT_ID = ""    # <-- add the chat id of your group or channel or whatever here
-COUNTRY = "us"    # <-- two letter country code, checks for updates in the united states by default
+COUNTRY = "us"  # <-- two letter country code, checks for updates in the united states by default
 
 
 STORE = f"https://itunes.apple.com/{COUNTRY}/lookup?bundleId="
