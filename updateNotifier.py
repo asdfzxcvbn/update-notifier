@@ -7,7 +7,7 @@ CHAT_ID = ""    # <-- add the chat id of your group or channel or whatever here
 COUNTRY = "us"  # <-- two letter country code, checks for updates in the united states by default
 
 
-STORE = f"https://itunes.apple.com/{COUNTRY}/lookup?bundleId="
+STORE = f"https://itunes.apple.com/lookup?country={COUNTRY}&bundleId="
 UPDATE_CHANNEL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text=a%20new%20update%20has%20been%20released%20for%20"
 
 bundles = {}
