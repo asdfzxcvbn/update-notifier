@@ -22,15 +22,15 @@ req_headers = {
 def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
-    
+
     try:
         new_ver = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]["version"]
     except IndexError:
         print(f"**ERROR**: {bundles[app]} is not a valid bundle id, so fetching the current version is impossible.")
         return
-      
+
     print(f"> got new_ver {new_ver}")
-    
+
     try:
         with open(files[app], "r") as oldversion:
             old_ver = oldversion.read().strip()  # .strip() is required bc theres whitespace for some reason
