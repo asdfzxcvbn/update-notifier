@@ -15,7 +15,8 @@ bundles = {}
 files = {}
 
 req_headers = {
-    # "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",  # sometimes needed bc apple is weird
+    # never thought about this, but maybe bots will have correct information? lets see if apple plays nice with them.
+    "User-Agent": "FreshRSS/1.11.2 (Linux; https://freshrss.org) like Googlebot"
     "cache-control": "private, max-age=0, no-cache"
 }
 
