@@ -2,18 +2,20 @@ from requests import get
 from time import sleep
 from datetime import datetime as dt
 
+## don't edit anything above this line if you just want to use the bot.
 
 BOT_TOKEN = ""  # <-- add your bot token here. you can make a bot by messaging @BotFather
 CHAT_ID = ""    # <-- add the chat id of your group or channel or whatever here
 COUNTRY = "us"  # <-- two letter country code, checks for updates in the united states by default
 
-
-STORE = f"https://itunes.apple.com/lookup?country={COUNTRY}&bundleId="
-UPDATE_CHANNEL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text=a%20new%20update%20has%20been%20released%20for%20"
-
 bundles = {}
 
 files = {}
+
+## don't edit anything below this line if you just want to use the bot.
+
+STORE = f"https://itunes.apple.com/lookup?country={COUNTRY}&bundleId="
+UPDATE_CHANNEL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text=a%20new%20update%20has%20been%20released%20for%20"
 
 req_headers = {
     # never thought about this, but maybe bots will have correct information? lets see if apple plays nice with them.
