@@ -21,6 +21,15 @@ req_headers = {
     "cache-control": "private, max-age=0, no-cache"
 }
 
+def is_newer_version(new_version, old_version):
+    new_components = list(map(int, new_version.split('.')))
+    old_components = list(map(int, old_version.split('.')))
+    for i in range(3):
+        if new_components[i] > old_components[i]:
+            return True
+        elif new_components[i] < old_components[i]:
+            return False
+    return False
 
 def check_version(app):
     print(f"now checking {app} for updates..")
@@ -38,12 +47,16 @@ def check_version(app):
         with open(files[app], "r") as oldversion:
             old_ver = oldversion.read().strip()  # .strip() is required bc theres whitespace for some reason
             print(f"< got old_ver {old_ver}")
+
         if new_ver != old_ver:
-            send_update_message(app, new_ver, old_ver)
-            print("**UPDATE**: sent message.")
-            with open(files[app], "w") as replace:
-                replace.write(new_ver)
-                print(f"**UPDATE**: erased file and inserted new_ver: {new_ver}")
+            if is_newer_version(new_ver, old_ver):
+                send_update_message(app, new_ver, old_ver)
+                print("**UPDATE**: sent message.")
+                with open(files[app], "w") as replace:
+                    replace.write(new_ver)
+                    print(f"**UPDATE**: erased file and inserted new_ver: {new_ver}")
+            else:
+                print("**API**: itunes api returned an older version after returning a newer version. skipping.")
     except FileNotFoundError:
         print(f"**ERROR**: the version checking file for {app}, {files[app]}, does not exist.")
         return
