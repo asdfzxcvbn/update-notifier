@@ -21,6 +21,7 @@ req_headers = {
     "cache-control": "private, max-age=0, no-cache"
 }
 
+
 def is_newer_version(new_version, old_version):
     new_components = list(map(int, new_version.split('.')))
     old_components = list(map(int, old_version.split('.')))
@@ -30,6 +31,7 @@ def is_newer_version(new_version, old_version):
         if new_components[i] < old_components[i]:
             return False
     return False
+
 
 def check_version(app):
     print(f"now checking {app} for updates..")
