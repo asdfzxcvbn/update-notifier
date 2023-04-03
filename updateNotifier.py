@@ -17,7 +17,7 @@ files = {}
 
 req_headers = {
     # never thought about this, but maybe bots will have correct information? lets see if apple plays nice with them.
-    "User-Agent": "FreshRSS/1.11.2 (Linux; https://freshrss.org) like Googlebot"
+    "User-Agent": "FreshRSS/1.11.2 (Linux; https://freshrss.org) like Googlebot",
     "cache-control": "private, max-age=0, no-cache"
 }
 
