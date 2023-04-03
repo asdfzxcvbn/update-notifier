@@ -27,7 +27,7 @@ def is_newer_version(new_version, old_version):
     for i in range(3):
         if new_components[i] > old_components[i]:
             return True
-        elif new_components[i] < old_components[i]:
+        if new_components[i] < old_components[i]:
             return False
     return False
 
