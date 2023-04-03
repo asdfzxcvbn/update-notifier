@@ -1,5 +1,6 @@
 from requests import get
 from time import sleep
+from datetime import datetime as dt
 
 
 BOT_TOKEN = ""  # <-- add your bot token here. you can make a bot by messaging @BotFather
@@ -58,5 +59,5 @@ def send_update_message(app, new_ver, old_ver):
 while 1:
     for app in bundles:
         check_version(app)
-    print("rechecking in 10 minutes...\n")
+    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 10 minutes...\n")
     sleep(600)
