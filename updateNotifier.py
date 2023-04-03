@@ -39,9 +39,8 @@ def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
 
-    request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
-
     try:
+        request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
         new_ver = request["version"]
     except IndexError:
         print(f"**ERROR**: {bundles[app]} is not a valid bundle id, so fetching the current version is impossible.")
