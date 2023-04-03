@@ -36,7 +36,7 @@ you will have to create the file after you have defined it in `files`. make the 
 you can get an app's bundle id with [this website](https://offcornerdev.com/bundleid.html).
 
 ## running the bot
-simply run `python3 updateNotifier.py` and leave it running. the best option is to run this on a server that is always on. you can let this run in the background with tools like `screen`.
+you'll have to install this program's dependencies. first, cd into this repo and run `python3 -m pip install -r requirements.txt`. after that, run `python3 updateNotifier.py` and leave it running. the best option is to run this on a server that is always on. you can let this run in the background with tools like `screen`.
 
 ## was this useful?
 if it was, i would appreciate any donation. :)
