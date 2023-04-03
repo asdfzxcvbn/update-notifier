@@ -39,8 +39,10 @@ def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
 
+    request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
+
     try:
-        new_ver = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]["version"]
+        new_ver = request["version"]
     except IndexError:
         print(f"**ERROR**: {bundles[app]} is not a valid bundle id, so fetching the current version is impossible.")
         return
@@ -54,7 +56,7 @@ def check_version(app):
 
         if new_ver != old_ver:
             if is_newer_version(new_ver, old_ver):
-                send_update_message(app, new_ver, old_ver)
+                send_update_message(app, new_ver, old_ver, request["trackViewUrl"].replace("?uo=4", ""))
                 print("**UPDATE**: sent message.")
                 with open(files[app], "w") as replace:
                     replace.write(new_ver)
@@ -68,8 +70,8 @@ def check_version(app):
         print(f"**ERROR**: the version checking file for {app} is not defined.")
 
 
-def send_update_message(app, new_ver, old_ver):
-    get(f"{UPDATE_CHANNEL}{app}!%0A%0Athe%20old%20version%20was%3A%20{old_ver}%0Athe%20new%20version%20is%3A%20{new_ver}")
+def send_update_message(app, new_ver, old_ver, link):
+    get(f"{UPDATE_CHANNEL}{app}!%0A%0Athe%20old%20version%20was%3A%20{old_ver}%0Athe%20new%20version%20is%3A%20{new_ver}%0A%0Acheck%20it%20out%20here%3A%20{link}")
     # don't even question it.
 
 
