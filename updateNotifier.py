@@ -1,18 +1,29 @@
+#!/usr/bin/python3
+import os
+import sys
+
+if not os.path.exists(os.path.expanduser("~/.zxcvbn")) or (len(sys.argv) > 1 and sys.argv[1] == "start"):
+    print("welcome to zxcvbn's update notifier!")
+    print("you can get all required information by reading the README.\n")
+
+    bot_token = input("enter your bot's token: ").strip()
+    chat_id = input("enter your chat id: ").strip()
+    country = input("enter your alpha-2 country code: ").lower().strip()
+
+    if not os.path.exists(os.path.expanduser("~/.zxcvbn")):
+        os.makedirs(os.path.expanduser("~/.zxcvbn"))
+    with open(os.path.expanduser("~/.zxcvbn/info.py"), "w") as info:
+        info.write(f"BOT_TOKEN='{bot_token}'\nCHAT_ID='{chat_id}'\nCOUNTRY='{country}'")
+
+    print("\nall required info has been written.")
+    sys.exit()
+
 from requests import get
 from time import sleep
 from datetime import datetime as dt
 
-# don't edit anything above this line if you just want to use the bot.
-
-BOT_TOKEN = ""  # <-- add your bot token here. you can make a bot by messaging @BotFather
-CHAT_ID = ""    # <-- add the chat id of your group or channel or whatever here
-COUNTRY = "us"  # <-- two letter country code, checks for updates in the united states by default
-
-bundles = {}
-
-files = {}
-
-# don't edit anything below this line if you just want to use the bot.
+sys.path.append(os.path.expanduser("~/.zxcvbn"))
+from info import BOT_TOKEN, CHAT_ID, COUNTRY
 
 STORE = f"https://itunes.apple.com/lookup?country={COUNTRY}&bundleId="
 UPDATE_CHANNEL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text=a%20new%20update%20has%20been%20released%20for%20"
@@ -23,6 +34,61 @@ req_headers = {
     "cache-control": "private, max-age=0, no-cache"
 }
 
+if len(sys.argv) == 1:
+    from json import load
+    try:
+        with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as b:
+            bundles = load(b)
+        with open(os.path.expanduser("~/.zxcvbn/files.json"), "r") as f:
+            files = load(f)
+    except FileNotFoundError:
+        print("you have to add an app to monitor first!")
+        print("specify the app name (one word, no spaces/symbols) and bundle id to add.")
+        print("usage: updates add <appname> <bundleid>")
+        print("example: updates add SpotifyMusic com.spotify.client")
+        sys.exit(1)
+elif len(sys.argv) != 1 and len(sys.argv) != 4:
+    print("please specify the app name (one word, no spaces/symbols) and bundle id to add.")
+    print("usage: updates add <appname> <bundleid>")
+    print("example: updates add SpotifyMusic com.spotify.client")
+    sys.exit(1)
+elif len(sys.argv) == 4 and sys.argv[1] == "add":
+    try:
+        current_ver = get(f"{STORE}{sys.argv[3]}", headers=req_headers).json()["results"][0]["version"].strip()
+    except KeyError:
+        print("invalid bundle id specified.")
+        sys.exit(1)
+
+    from json import load, dump
+
+    if not os.path.exists(os.path.expanduser("~/.zxcvbn/monitor.json")):
+        with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "w") as x:
+            x.write("{}")
+    if not os.path.exists(os.path.expanduser("~/.zxcvbn/files.json")):
+        with open(os.path.expanduser("~/.zxcvbn/files.json"), "w") as x:
+            x.write("{}")
+
+    with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as apps:
+        monitored = load(apps)
+    monitored[sys.argv[2]] = sys.argv[3]
+    with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "w") as apps:
+        dump(monitored, apps)
+
+    with open(os.path.expanduser("~/.zxcvbn/files.json"), "r") as version_files_dict:
+        version_files = load(version_files_dict)
+    version_files[sys.argv[2]] = f"{os.path.expanduser('~/.zxcvbn/')}{sys.argv[2]}.txt"
+    with open(os.path.expanduser("~/.zxcvbn/files.json"), "w") as version_files_dict:
+        dump(version_files, version_files_dict)  # i am literally so tired rn
+
+    with open(os.path.expanduser(f"~/.zxcvbn/{sys.argv[2]}.txt"), "w") as vfile:
+        vfile.write(current_ver)
+
+    print(f"{sys.argv[2]} is now being monitored.")
+    sys.exit(1)
+else:
+    print("add apps usage: updates add <appname> <bundleid>")
+    print("start monitoring: updates")
+    sys.exit(1)
 
 def is_newer_version(new_version, old_version):
     new_components = list(map(int, new_version.split('.')))
