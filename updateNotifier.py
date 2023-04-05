@@ -90,6 +90,7 @@ else:
     print("start monitoring: updates")
     sys.exit(1)
 
+    
 def is_newer_version(new_version, old_version):
     new_components = list(map(int, new_version.split('.')))
     old_components = list(map(int, old_version.split('.')))
