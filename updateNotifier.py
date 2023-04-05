@@ -38,6 +38,8 @@ req_headers = {
 
 def reload_files():
     try:
+        global bundles
+        global files
         with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as b:
             bundles = load(b)
         with open(os.path.expanduser("~/.zxcvbn/files.json"), "r") as f:
