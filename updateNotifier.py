@@ -21,6 +21,7 @@ if not os.path.exists(os.path.expanduser("~/.zxcvbn")) or (len(sys.argv) > 1 and
 from requests import get
 from time import sleep
 from datetime import datetime as dt
+from json import load, dump
 
 sys.path.append(os.path.expanduser("~/.zxcvbn"))
 from info import BOT_TOKEN, CHAT_ID, COUNTRY
@@ -34,8 +35,8 @@ req_headers = {
     "cache-control": "private, max-age=0, no-cache"
 }
 
-if len(sys.argv) == 1:
-    from json import load
+
+def reload_files():
     try:
         with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as b:
             bundles = load(b)
@@ -47,6 +48,10 @@ if len(sys.argv) == 1:
         print("usage: updates add <appname> <bundleid>")
         print("example: updates add SpotifyMusic com.spotify.client")
         sys.exit(1)
+
+
+if len(sys.argv) == 1:
+    pass
 elif len(sys.argv) != 1 and len(sys.argv) != 4:
     print("please specify the app name (one word, no spaces/symbols) and bundle id to add.")
     print("usage: updates add <appname> <bundleid>")
@@ -58,8 +63,6 @@ elif len(sys.argv) == 4 and sys.argv[1] == "add":
     except KeyError:
         print("invalid bundle id specified.")
         sys.exit(1)
-
-    from json import load, dump
 
     if not os.path.exists(os.path.expanduser("~/.zxcvbn/monitor.json")):
         with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "w") as x:
@@ -142,6 +145,7 @@ def send_update_message(app, new_ver, old_ver, link):
 
 
 while 1:
+    reload_files()
     for app in bundles:
         check_version(app)
     print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 10 minutes...\n")
