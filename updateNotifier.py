@@ -110,7 +110,7 @@ def is_newer_version(new_version, old_version):
 def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
-    
+
     while 1:
         try:
             request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
@@ -123,8 +123,6 @@ def check_version(app):
             print("couldn't decode JSON response, waiting 2 minutes to avoid potential rate limits..")
             sleep(120)
             continue
-         
-         
 
     print(f"> got new_ver {new_ver}")
 
