@@ -21,7 +21,7 @@ if not os.path.exists(os.path.expanduser("~/.zxcvbn")) or (len(sys.argv) > 1 and
 from requests import get
 from time import sleep
 from datetime import datetime as dt
-from json import load, dump
+from json import load, dump, JSONDecodeError
 
 sys.path.append(os.path.expanduser("~/.zxcvbn"))
 from info import BOT_TOKEN, CHAT_ID, COUNTRY
@@ -111,12 +111,18 @@ def check_version(app):
     print(f"now checking {app} for updates..")
     sleep(2)  # avoid rate limits (hopefully)
 
-    try:
-        request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
-        new_ver = request["version"]
-    except IndexError:
-        print(f"**ERROR**: {bundles[app]} is not a valid bundle id, so fetching the current version is impossible.")
-        return
+    while 1:
+        try:
+            request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
+            new_ver = request["version"]
+            break
+        except IndexError:
+            print(f"**ERROR**: {bundles[app]} is not a valid bundle id, so fetching the current version is impossible.")
+            return
+        except JSONDecodeError:
+            print("couldn't decode JSON response, waiting 2 minutes to avoid potential rate limits..")
+            sleep(120)
+            continue
 
     print(f"> got new_ver {new_ver}")
 
