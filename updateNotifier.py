@@ -99,10 +99,13 @@ else:
 def is_newer_version(new_version, old_version):
     new_components = list(map(int, new_version.split('.')))
     old_components = list(map(int, old_version.split('.')))
-    for i in range(3):
-        if new_components[i] > old_components[i]:
+    max_components = max(len(new_components), len(old_components))
+    for i in range(max_components):
+        new_value = new_components[i] if i < len(new_components) else 0
+        old_value = old_components[i] if i < len(old_components) else 0
+        if new_value > old_value:
             return True
-        if new_components[i] < old_components[i]:
+        elif new_value < old_value:
             return False
     return False
 
