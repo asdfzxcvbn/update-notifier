@@ -159,5 +159,5 @@ while 1:
     reload_files()
     for app in bundles:
         check_version(app)
-    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 10 minutes...\n")
-    sleep(600)
+    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 20 minutes...\n")
+    sleep(1200)
