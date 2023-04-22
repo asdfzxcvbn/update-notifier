@@ -22,6 +22,7 @@ from requests import get
 from time import sleep
 from datetime import datetime as dt
 from json import load, dump, JSONDecodeError
+from requests.exceptions import ConnectionError
 
 sys.path.append(os.path.expanduser("~/.zxcvbn"))
 from info import BOT_TOKEN, CHAT_ID, COUNTRY
@@ -126,8 +127,15 @@ def check_version(app):
             print("couldn't decode JSON response, waiting 2 minutes to avoid potential rate limits..")
             sleep(120)
             continue
+        except ConnectionError as ce:
+            print(f"got connectionerror: {ce}")
+            print("waiting 2 minutes to avoid potential rate limits..")
+            sleep(120)
+            continue
+
 
     print(f"> got new_ver {new_ver}")
+
 
     try:
         with open(files[app], "r") as oldversion:
