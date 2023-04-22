@@ -112,7 +112,7 @@ def is_newer_version(new_version, old_version):
 
 def check_version(app):
     print(f"now checking {app} for updates..")
-    sleep(2)  # avoid rate limits (hopefully)
+    sleep(5)  # avoid rate limits (hopefully)
 
     while 1:
         try:
