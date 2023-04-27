@@ -2,7 +2,9 @@
 import os
 import sys
 
-if not os.path.exists(os.path.expanduser("~/.zxcvbn")) or (len(sys.argv) > 1 and sys.argv[1] == "start"):
+zpath = os.path.expanduser("~/.zxcvbn")
+
+if not os.path.exists(zpath) or (len(sys.argv) > 1 and sys.argv[1] == "start"):
     print("welcome to zxcvbn's update notifier!")
     print("you can get all required information by reading the README.\n")
 
@@ -10,9 +12,9 @@ if not os.path.exists(os.path.expanduser("~/.zxcvbn")) or (len(sys.argv) > 1 and
     chat_id = input("enter your chat id: ").strip()
     country = input("enter your alpha-2 country code: ").lower().strip()
 
-    if not os.path.exists(os.path.expanduser("~/.zxcvbn")):
-        os.makedirs(os.path.expanduser("~/.zxcvbn"))
-    with open(os.path.expanduser("~/.zxcvbn/info.py"), "w") as info:
+    if not os.path.exists(zpath):
+        os.makedirs(zpath)
+    with open(zpath + "/info.py", "w") as info:
         info.write(f"BOT_TOKEN='{bot_token}'\nCHAT_ID='{chat_id}'\nCOUNTRY='{country}'")
 
     print("\nall required info has been written.")
@@ -23,7 +25,7 @@ from time import sleep
 from datetime import datetime as dt
 from json import load, dump, JSONDecodeError
 
-sys.path.append(os.path.expanduser("~/.zxcvbn"))
+sys.path.append(zpath)
 from info import BOT_TOKEN, CHAT_ID, COUNTRY
 
 STORE = f"https://itunes.apple.com/lookup?country={COUNTRY}&bundleId="
@@ -40,9 +42,9 @@ def reload_files():
     try:
         global bundles
         global files
-        with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as b:
+        with open(zpath + "/monitor.json", "r") as b:
             bundles = load(b)
-        with open(os.path.expanduser("~/.zxcvbn/files.json"), "r") as f:
+        with open(zpath + "/files.json", "r") as f:
             files = load(f)
     except FileNotFoundError:
         print("you have to add an app to monitor first!")
@@ -66,26 +68,26 @@ elif len(sys.argv) == 4 and sys.argv[1] == "add":
         print("invalid bundle id specified.")
         sys.exit(1)
 
-    if not os.path.exists(os.path.expanduser("~/.zxcvbn/monitor.json")):
-        with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "w") as x:
+    if not os.path.exists(zpath + "/monitor.json"):
+        with open(zpath + "/monitor.json", "w") as x:
             x.write("{}")
-    if not os.path.exists(os.path.expanduser("~/.zxcvbn/files.json")):
-        with open(os.path.expanduser("~/.zxcvbn/files.json"), "w") as x:
+    if not os.path.exists(zpath + "/files.json"):
+        with open(zpath + "/files.json", "w") as x:
             x.write("{}")
 
-    with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "r") as apps:
+    with open(zpath + "/monitor.json", "r") as apps:
         monitored = load(apps)
     monitored[sys.argv[2]] = sys.argv[3]
-    with open(os.path.expanduser("~/.zxcvbn/monitor.json"), "w") as apps:
+    with open(zpath + "/monitor.json", "w") as apps:
         dump(monitored, apps)
 
-    with open(os.path.expanduser("~/.zxcvbn/files.json"), "r") as version_files_dict:
+    with open(zpath + "/files.json", "r") as version_files_dict:
         version_files = load(version_files_dict)
-    version_files[sys.argv[2]] = f"{os.path.expanduser('~/.zxcvbn/')}{sys.argv[2]}.txt"
-    with open(os.path.expanduser("~/.zxcvbn/files.json"), "w") as version_files_dict:
+    version_files[sys.argv[2]] = f"{zpath}/{sys.argv[2]}.txt"
+    with open(zpath + "/files.json", "w") as version_files_dict:
         dump(version_files, version_files_dict)  # i am literally so tired rn
 
-    with open(os.path.expanduser(f"~/.zxcvbn/{sys.argv[2]}.txt"), "w") as vfile:
+    with open(zpath + f"/{sys.argv[2]}.txt", "w") as vfile:
         vfile.write(current_ver)
 
     print(f"{sys.argv[2]} is now being monitored.")
@@ -147,9 +149,9 @@ def check_version(app):
         print(f"**ERROR**: the version checking file for {app} is not defined.")
 
 
+# don't even question it.
 def send_update_message(app, new_ver, old_ver, link):
     get(f"{UPDATE_CHANNEL}{app}!%0A%0Athe%20old%20version%20was%3A%20{old_ver}%0Athe%20new%20version%20is%3A%20{new_ver}%0A%0Acheck%20it%20out%20here%3A%20{link}")
-    # don't even question it.
 
 
 while 1:
