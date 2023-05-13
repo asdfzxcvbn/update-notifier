@@ -115,7 +115,7 @@ def is_newer_version(new_version, old_version):
 
 def check_version(app):
     print(f"now checking {app} for updates..")
-    sleep(3)  # avoid rate limits (hopefully)
+    sleep(4)  # avoid rate limits (hopefully)
 
     while 1:
         try:
@@ -135,9 +135,7 @@ def check_version(app):
             sleep(120)
             continue
 
-
     print(f"> got new_ver {new_ver}")
-
 
     try:
         with open(files[app], "r") as oldversion:
@@ -169,5 +167,5 @@ while 1:
     reload_files()
     for app in bundles:
         check_version(app)
-    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 15 minutes...\n")
-    sleep(900)
+    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 20 minutes...\n")
+    sleep(1200)
