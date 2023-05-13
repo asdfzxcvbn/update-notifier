@@ -22,7 +22,7 @@ talk to [BotFather](https://t.me/BotFather) and make a new bot. after the bot is
 refer to the following [stackoverflow answer](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id#32572159).
 
 #### how do i get my country code?
-visit [this wikipedia page](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes), find your country, and save its alpha-2 code to `COUNTRY`.
+visit [this wikipedia page](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes), find your country, and get its alpha-2 code.
 
 ## start monitoring apps
 to add an app to monitor, simply run the command `updates add <appname> <bundleid>`. `<appname>` must be contain no spaces or symbols. for example, to monitor youtube:
