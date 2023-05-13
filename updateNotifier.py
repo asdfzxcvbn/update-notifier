@@ -24,6 +24,7 @@ from requests import get
 from time import sleep
 from datetime import datetime as dt
 from json import load, dump, JSONDecodeError
+from requests.exceptions import ConnectionError
 
 sys.path.append(zpath)
 from info import BOT_TOKEN, CHAT_ID, COUNTRY
@@ -101,17 +102,20 @@ else:
 def is_newer_version(new_version, old_version):
     new_components = list(map(int, new_version.split('.')))
     old_components = list(map(int, old_version.split('.')))
-    for i in range(3):
-        if new_components[i] > old_components[i]:
+    max_components = max(len(new_components), len(old_components))
+    for i in range(max_components):
+        new_value = new_components[i] if i < len(new_components) else 0
+        old_value = old_components[i] if i < len(old_components) else 0
+        if new_value > old_value:
             return True
-        if new_components[i] < old_components[i]:
+        elif new_value < old_value:
             return False
     return False
 
 
 def check_version(app):
     print(f"now checking {app} for updates..")
-    sleep(2)  # avoid rate limits (hopefully)
+    sleep(3)  # avoid rate limits (hopefully)
 
     while 1:
         try:
@@ -125,8 +129,15 @@ def check_version(app):
             print("couldn't decode JSON response, waiting 2 minutes to avoid potential rate limits..")
             sleep(120)
             continue
+        except ConnectionError as ce:
+            print(f"got connectionerror: {ce}")
+            print("waiting 2 minutes to avoid potential rate limits..")
+            sleep(120)
+            continue
+
 
     print(f"> got new_ver {new_ver}")
+
 
     try:
         with open(files[app], "r") as oldversion:
@@ -158,5 +169,5 @@ while 1:
     reload_files()
     for app in bundles:
         check_version(app)
-    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 10 minutes...\n")
-    sleep(600)
+    print(f"current time is {dt.now().strftime('%H:%M:%S')}, rechecking in 15 minutes...\n")
+    sleep(900)
