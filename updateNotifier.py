@@ -21,7 +21,7 @@ if not os.path.exists(zpath) or (len(sys.argv) > 1 and sys.argv[1] == "start"):
     sys.exit()
 
 from requests import get
-from time import sleep
+from time import sleep, time
 from datetime import datetime as dt
 from json import load, dump, JSONDecodeError
 from requests.exceptions import ConnectionError
@@ -119,7 +119,7 @@ def check_version(app):
 
     while 1:
         try:
-            request = get(f"{STORE}{bundles[app]}", headers=req_headers).json()["results"][0]
+            request = get(f"{STORE}{bundles[app]}&t={int(time())}", headers=req_headers).json()["results"][0]
             new_ver = request["version"]
             break
         except IndexError:
