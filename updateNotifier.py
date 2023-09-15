@@ -119,7 +119,7 @@ def check_version(app):
 
     while 1:
         try:
-            request = get(f"{STORE}{bundles[app]}&t={int(time())}", headers=req_headers).json()["results"][0]
+            request = get(f"{STORE}{bundles[app]}&{int(time())}={time()}", headers=req_headers).json()["results"][0]
             new_ver = request["version"]
             break
         except IndexError:
