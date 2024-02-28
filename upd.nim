@@ -1,21 +1,7 @@
 import std/[os, re, uri, json, jsonutils, times, tables, rdstdin, strutils, strformat, httpclient]
 
-#[
-
-side note: this is wayy better than the python version, even though im writing this pretty late at night
-tbh it was surprisingly easy to recreate and it gave me another learning opportunity for nim
-i might still be able to improve this, but this "beta" version is practically good enough.
-
-LEARN NIM LEARN NIM LEARN NIM LEARN NIM I LOVE NIM <3
-https://nim-lang.org
-
-]#
-
 const options: array[2, string] = ["start", "add"]
-let
-    confPath: string = "~/.config/updateNotifier".expandTilde
-    dataPath: string = &"{confPath}/monitor.json"
-
+let confPath: string = "~/.config/updateNotifier".expandTilde
 var
     token: string
     chatId: string
@@ -31,26 +17,23 @@ proc makeRequest(url: string, specifyTime: bool = true): JsonNode =
 
     return resp.parseJson()
 
-proc getExistingData(): Table[string, Table[string, string]] =
-    if not fileExists(dataPath):
-        writeFile(dataPath, "{}")
-        return initTable[string, Table[string, string]]()
-
-    # assume file exists from this point
-    return parseFile(dataPath).jsonTo(Table[string, Table[string, string]])
+proc monitorCount(): int =
+    for f in walkFiles(&"{confPath}/monitors/*.json"):
+        inc result
 
 proc getAppVersion(appId: string, country: string, includeAppName: bool = false): Table[string, string] =
     var
         req: JsonNode = makeRequest(&"https://itunes.apple.com/lookup?limit=1&id={appId}&country={country}")
         version: string = req["results"][0]["version"].getStr()
         name: string = req["results"][0]["trackName"].getStr()
+        bundle: string = req["results"][0]["bundleId"].getStr()
 
     if includeAppName:
-        return {"version": version, "name": name}.toTable
+        return {"version": version, "name": name, "bundle": bundle}.toTable
     return {"version": version}.toTable
 
 if not [1, 2].contains(paramCount()) or not options.contains(paramStr(1)):
-    quit "[!] usage: upd (start | add <appstore link>)\nexample: upd add https://apps.apple.com/app/id324684580"
+    quit "[!] usage: upd (start | add <appstore link>)\n[*] example: upd add https://apps.apple.com/app/id324684580"
 elif not confPath.dirExists:  # first time setup
     echo "[?] hi! since you're new, i'm going to need some info.\n"
 
@@ -60,9 +43,11 @@ elif not confPath.dirExists:  # first time setup
     createDir(confPath)
     writeFile(&"{confPath}/conf.json", ${"token": token, "chat": chatId}.toTable)
     echo ""
-elif paramStr(1) == "add":  # add new app
+
+if paramStr(1) == "add":  # add new app
     if paramCount() != 2:
         quit "[!] usage: upd add <appstore link>"
+    createDir(&"{confPath}/monitors")
 
     var
         appId: string
@@ -70,7 +55,8 @@ elif paramStr(1) == "add":  # add new app
         req: Table[string, string]
         version: string
         name: string
-        data: Table[string, Table[string, string]] = getExistingData()
+        bundle: string
+        data: Table[string, string]
 
     try:  # regex in python was much easier but i guess this will work lol
         appId = paramStr(2).findAll(re"(?<=id)(\d{9,10})(?=\?|$)")[0]
@@ -84,11 +70,12 @@ elif paramStr(1) == "add":  # add new app
         req = appId.getAppVersion(country, true)
         version = req["version"]
         name = req["name"]
-    except IndexDefect:
+        bundle = req["bundle"]
+    except IndexDefect:  # catch exception raised in `getAppVersion` call (empty results)
         quit "[!] couldn't get latest version! are you sure you can access that link?"
 
-    data[appId] = {"name": name, "version": version, "country": country}.toTable
-    writeFile(dataPath, $data)
+    data = {"name": name, "version": version, "country": country, "appId": appId}.toTable
+    writeFile(&"{confPath}/monitors/{bundle}.json", $data)
 
     quit(&"[*] added {name}!\n[*] current version: {version}", 0)
 
@@ -105,25 +92,28 @@ proc notify(name: string, appId: string, oldVer: string, newVer: string): void =
 
     discard url.makeRequest(false)
 
-while true:
-    var data: Table[string, Table[string, string]] = getExistingData()
-    if data.len() == 0:
-        quit "[!] you need to add apps to monitor first!"
+if monitorCount() == 0:
+    quit "[!] you need to add apps to monitor first!"
 
-    for id, info in data.pairs:
+while true:
+    for file in walkFiles(&"{confPath}/monitors/*.json"):
+        var
+            parsed: JsonNode = parseFile(file)
+            info: Table[string, string] = parsed.jsonTo(Table[string, string]) 
+            id: string = info["appId"]
         echo "[*] checking " & info["name"] & " .."
         let req: Table[string, string] = id.getAppVersion(info["country"])
 
-        if req["version"] != data[id]["version"]:
+        if req["version"] != info["version"]:
             echo "[*] update detected! notifying.."
-            notify(info["name"], id, data[id]["version"], req["version"])
+            notify(info["name"], id, info["version"], req["version"])
             echo "[*] done!\n"
-            data[id]["version"] = req["version"]
+            info["version"] = req["version"]
+            writeFile(file, $info)
         else:
             echo "[*] no update detected.\n"
 
         sleep(5000)  # 5 seconds, to prevent rate limits
 
-    writeFile(dataPath, $data)
     echo "[*] done, checking again in 20 minutes..\n"
     sleep(1200000)  # check every 20 minutes
