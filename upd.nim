@@ -1,6 +1,6 @@
 import std/[os, re, uri, json, jsonutils, times, tables, rdstdin, strutils, strformat, httpclient]
 
-discard """
+#[
 
 side note: this is wayy better than the python version, even though im writing this pretty late at night
 tbh it was surprisingly easy to recreate and it gave me another learning opportunity for nim
@@ -9,7 +9,7 @@ i might still be able to improve this, but this "beta" version is practically go
 LEARN NIM LEARN NIM LEARN NIM LEARN NIM I LOVE NIM <3
 https://nim-lang.org
 
-"""
+]#
 
 const options: array[2, string] = ["start", "add"]
 let
@@ -28,7 +28,7 @@ proc makeRequest(url: string, specifyTime: bool = true): JsonNode =
         unix: int64 = getTime().toUnix
         urlAdd: string = if specifyTime: &"&{unix}={unix}" else: ""
         resp: string = client.getContent(url & urlAdd)
-    
+
     return resp.parseJson()
 
 proc getExistingData(): Table[string, Table[string, string]] =
@@ -50,7 +50,7 @@ proc getAppVersion(appId: string, country: string, includeAppName: bool = false)
     return {"version": version}.toTable
 
 if not [1, 2].contains(paramCount()) or not options.contains(paramStr(1)):
-    quit "[!] usage: upd (start | add <appstore link>)"
+    quit "[!] usage: upd (start | add <appstore link>)\nexample: upd add https://apps.apple.com/app/id324684580"
 elif not confPath.dirExists:  # first time setup
     echo "[?] hi! since you're new, i'm going to need some info.\n"
 
@@ -59,7 +59,7 @@ elif not confPath.dirExists:  # first time setup
     
     createDir(confPath)
     writeFile(&"{confPath}/conf.json", ${"token": token, "chat": chatId}.toTable)
-    quit("\n[*] saved data!", 0)
+    echo ""
 elif paramStr(1) == "add":  # add new app
     if paramCount() != 2:
         quit "[!] usage: upd add <appstore link>"
@@ -107,6 +107,8 @@ proc notify(name: string, appId: string, oldVer: string, newVer: string): void =
 
 while true:
     var data: Table[string, Table[string, string]] = getExistingData()
+    if data.len() == 0:
+        quit "[!] you need to add apps to monitor first!"
 
     for id, info in data.pairs:
         echo "[*] checking " & info["name"] & " .."
