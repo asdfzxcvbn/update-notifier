@@ -6,10 +6,7 @@ var
     token: string
     chatId: string
 
-proc makeRequest(url: string, specifyTime: bool = true): JsonNode =
-    var client: HttpClient = newHttpClient()
-    defer: client.close()
-
+proc makeRequest(client: HttpClient, url: string, specifyTime: bool = true): JsonNode =
     let
         unix: int64 = getTime().toUnix
         urlAdd: string = if specifyTime: &"&{unix}={unix}" else: ""
@@ -21,9 +18,17 @@ proc monitorCount(): int =
     for f in walkFiles(&"{confPath}/monitors/*.json"):
         inc result
 
-proc getAppVersion(appId: string, country: string, includeAppName: bool = false): Table[string, string] =
-    var
-        req: JsonNode = makeRequest(&"https://itunes.apple.com/lookup?limit=1&id={appId}&country={country}")
+proc getAppVersion(client: HttpClient, appId: string, country: string, includeAppName: bool = false): Table[string, string] =
+    var req: JsonNode  # if only there was a better way to do this! RIGHT ?! PLEASE ?!!?
+    while true:
+        try:
+            req = client.makeRequest(&"https://itunes.apple.com/lookup?limit=1&id={appId}&country={country}")
+            break
+        except HttpRequestError:
+            echo "[!] error while checking version, trying again in 10 seconds..\n"
+            sleep(10000)
+
+    let
         version: string = req["results"][0]["version"].getStr()
         name: string = req["results"][0]["trackName"].getStr()
         bundle: string = req["results"][0]["bundleId"].getStr()
@@ -67,7 +72,7 @@ if paramStr(1) == "add":  # add new app
         country = "us"  # if country isn't found, use US by default.
 
     try:
-        req = appId.getAppVersion(country, true)
+        req = newHttpClient().getAppVersion(appId, country, true)
         version = req["version"]
         name = req["name"]
         bundle = req["bundle"]
@@ -85,35 +90,43 @@ block:
     token = data["token"]
     chatId = data["chat"]
 
-proc notify(name: string, appId: string, oldVer: string, newVer: string): void =
+proc notify(client: HttpClient, name: string, appId: string, oldVer: string, newVer: string): void =
     var url: string = &"https://api.telegram.org/bot{token}/sendMessage?chat_id={chatId}&text="
     url.add(encodeUrl(&"a new update has been released for {name}!\n\nupdate: {oldVer} -> {newVer}\n\ncheck it out here: https://apps.apple.com/app/id{appId}", false))
     # looks like nothing has changed from the python version! still a shitty ~~function~~ proc!
 
-    discard url.makeRequest(false)
+    discard client.makeRequest(url, false)
 
 if monitorCount() == 0:
     quit "[!] you need to add apps to monitor first!"
 
-while true:
-    for file in walkFiles(&"{confPath}/monitors/*.json"):
-        var
-            parsed: JsonNode = parseFile(file)
-            info: Table[string, string] = parsed.jsonTo(Table[string, string]) 
-            id: string = info["appId"]
-        echo "[*] checking " & info["name"] & " .."
-        let req: Table[string, string] = id.getAppVersion(info["country"])
+proc main(): void =
+    var client: HttpClient = newHttpClient()  # should only need one client for everything
+    defer: client.close()  # is this even needed? whatever honestly
 
-        if req["version"] != info["version"]:
-            echo "[*] update detected! notifying.."
-            notify(info["name"], id, info["version"], req["version"])
-            echo "[*] done!\n"
-            info["version"] = req["version"]
-            writeFile(file, $info)
-        else:
-            echo "[*] no update detected.\n"
+    while true:
+        for file in walkFiles(&"{confPath}/monitors/*.json"):
+            var
+                parsed: JsonNode = parseFile(file)
+                info: Table[string, string] = parsed.jsonTo(Table[string, string]) 
+                id: string = info["appId"]
 
-        sleep(5000)  # 5 seconds, to prevent rate limits
+            echo "[*] checking " & info["name"] & " .."
+            let req: Table[string, string] = client.getAppVersion(id, info["country"])
 
-    echo "[*] done, checking again in 20 minutes..\n"
-    sleep(1200000)  # check every 20 minutes
+            if req["version"] != info["version"]:
+                echo "[*] update detected! notifying.."
+                notify(client, info["name"], id, info["version"], req["version"])
+                echo "[*] done!\n"
+                info["version"] = req["version"]
+                writeFile(file, $info)
+            else:
+                echo "[*] no update detected.\n"
+
+            sleep(5000)  # 5 seconds, to prevent rate limits
+
+        echo "[*] done, checking again in 20 minutes..\n"
+        sleep(1200000)
+
+when isMainModule:  # HAHA LOOK AT ME!! FOLLOWING DEFINITELY GREAT CONVENTIONS!!!
+    main()
