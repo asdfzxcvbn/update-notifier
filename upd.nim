@@ -24,7 +24,7 @@ proc getAppVersion(client: HttpClient, appId: string, country: string, includeAp
         try:
             req = client.makeRequest(&"https://itunes.apple.com/lookup?limit=1&id={appId}&country={country}")
             break
-        except HttpRequestError:
+        except IOError:
             echo "[!] error while checking version, trying again in 10 seconds..\n"
             sleep(10000)
 
