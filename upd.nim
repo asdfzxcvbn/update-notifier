@@ -27,6 +27,8 @@ proc getAppVersion(client: HttpClient, appId: string, country: string, includeAp
         except IOError:
             echo "[!] error while checking version, trying again in 10 seconds..\n"
             sleep(10000)
+        except TimeoutError:
+            echo "[!] timeout reached, trying again..\n" 
 
     let
         version: string = req["results"][0]["version"].getStr()
@@ -101,7 +103,7 @@ if monitorCount() == 0:
     quit "[!] you need to add apps to monitor first!"
 
 proc main(): void =
-    var client: HttpClient = newHttpClient()  # should only need one client for everything
+    var client: HttpClient = newHttpClient(timeout = 10000)  # should only need one client for everything
     defer: client.close()  # is this even needed? whatever honestly
 
     while true:
