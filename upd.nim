@@ -27,7 +27,7 @@ proc getAppVersion(client: HttpClient, appId: string, country: string, includeAp
         except IOError:
             echo "[!] error while checking version, trying again in 10 seconds..\n"
             sleep(10000)
-        except TimeoutError:
+        except:
             echo "[!] timeout reached, trying again..\n" 
 
     let
