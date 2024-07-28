@@ -6,9 +6,18 @@ import helpers
 
 
 def get_apps(database: str) -> list[helpers.App]:
-  with closing(sqlite3.connect(database)) as conn:
-    res = conn.execute("SELECT * FROM Apps")
-    return [helpers.App(*d) for d in res.fetchall()]
+  ret = []
+
+  try:
+    with closing(sqlite3.connect(database)) as conn:
+      res = conn.execute("SELECT * FROM Apps")
+      ret = [helpers.App(*d) for d in res.fetchall()]
+  except sqlite3.OperationalError as exc:
+    if "no such table: Apps" in str(exc):
+      setup(database)
+  finally:
+    print("you have no apps, maybe add some first?")
+    return ret
 
 
 def update_version(
@@ -76,4 +85,3 @@ def setup(database: str) -> None:
         name TEXT
       )
     """)
-
