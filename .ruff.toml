@@ -1,0 +1,6 @@
+line-length = 79
+indent-width = 2
+target-version = "py312"
+
+[lint]
+select = ["E", "F"]
