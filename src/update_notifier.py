@@ -58,8 +58,8 @@ def main(args: argparse.Namespace):
         print("notified!\n")
         sleep(5)
 
-        print("done checking all apps, rechecking in 20 minutes !")
-        sleep(TWENTY_MINUTES)
+      print("done checking all apps, rechecking in 20 minutes !\n")
+      sleep(TWENTY_MINUTES)
     except KeyboardInterrupt:
       print(" -- bye!")
       sys.exit(0)
