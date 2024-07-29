@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  update-notifier:
+    image: ghcr.io/asdfzxcvbn/update-notifier:main
+    restart: unless-stopped
+    container_name: update-notifier
+    environment:
+      DATABASE: /data.db
+      BOT_TOKEN: BOT_TOKEN_HERE
+      CHANNEL_ID: CHANNEL_ID_HERE
+    volumes:
+      - ./data.db:/data.db
