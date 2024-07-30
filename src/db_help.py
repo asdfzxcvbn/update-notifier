@@ -16,7 +16,8 @@ def get_apps(database: str) -> list[helpers.App]:
     if "no such table: Apps" in str(exc):
       setup(database)
   finally:
-    print("you have no apps, maybe add some first?")
+    if len(ret) == 0:
+      print("you have no apps, maybe add some first?")
     return ret
 
 
