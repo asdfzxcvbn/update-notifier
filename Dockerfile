@@ -4,3 +4,4 @@ COPY src src
 
 ENV PYTHONUNBUFFERED=1
 ENTRYPOINT ["python", "/src/update_notifier.py"]
+CMD start
